@@ -7,7 +7,7 @@ A web-based operations and booking management platform built for Ecolife Pest Co
 ## Live URL
 
 ```
-https://ecolifemanagementsystem.co.ke/login.html
+https://ecolifemanagementsystem.co.ke/
 ```
 
 ---
