@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ecolife System | Bookings</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#060D06;
+  --bg-card:#0C160C;
+  --bg-input:#0F1A0F;
+  --sidebar-bg:#080F08;
+  --topbar-bg:#0A120A;
+  --green:#00E676;
+  --green-dim:#00C853;
+  --green-glow:rgba(0,230,118,0.08);
+  --green-border:rgba(0,230,118,0.18);
+  --green-border-strong:rgba(0,230,118,0.35);
+  --white:#E8F5E9;
+  --gray:#6B8F71;
+  --gray-dim:#3D5E42;
+  --text:#C8E6C9;
+  --text-dim:#8BAD8F;
+  --error:#FF5252;
+  --sidebar-w:240px;
+}
+
+html,body{height:100%;font-family:'Inter',sans-serif;color:var(--text);background:var(--bg)}
+
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 10% 10%,rgba(0,230,118,0.05) 0%,transparent 50%),radial-gradient(ellipse at 90% 90%,rgba(0,200,83,0.06) 0%,transparent 50%);pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,230,118,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,230,118,0.02) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);background:var(--sidebar-bg);border-right:1px solid var(--green-border);display:flex;flex-direction:column;z-index:100;transition:transform 0.3s}
+.sidebar-brand{padding:22px 20px 18px;border-bottom:1px solid var(--green-border);display:flex;align-items:center;gap:12px}
+.sidebar-brand img{width:38px;height:38px;border-radius:50%;object-fit:cover;border:1.5px solid var(--green-border-strong);flex-shrink:0;box-shadow:0 0 12px rgba(0,230,118,0.15)}
+.brand-text{font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;color:var(--green);letter-spacing:0.06em;line-height:1.2}
+.brand-text span{display:block;font-weight:500;font-size:10px;color:var(--gray);letter-spacing:0.1em;text-transform:uppercase}
+.sidebar-nav{flex:1;padding:14px 0;overflow-y:auto}
+.nav-section-label{font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gray-dim);padding:10px 20px 6px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 20px;cursor:pointer;color:var(--text-dim);font-size:15px;font-weight:500;transition:all 0.2s;border-left:2px solid transparent;text-decoration:none}
+.nav-item:hover{background:var(--green-glow);color:var(--white)}
+.nav-item.active{background:rgba(0,230,118,0.08);color:var(--green);border-left-color:var(--green)}
+.nav-icon{width:17px;height:17px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sidebar-footer{padding:14px 20px;border-top:1px solid var(--green-border)}
+.user-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:rgba(0,230,118,0.1);border:1px solid var(--green-border-strong);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;color:var(--green);flex-shrink:0}
+.user-info{flex:1;min-width:0}
+.user-name{font-size:14px;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-role{font-size:10px;color:var(--gray);letter-spacing:0.08em;text-transform:uppercase}
+.btn-signout{width:100%;padding:8px;background:rgba(255,82,82,0.06);border:1px solid rgba(255,82,82,0.15);border-radius:7px;color:rgba(255,130,130,0.7);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-signout:hover{background:rgba(255,82,82,0.12);border-color:rgba(255,82,82,0.3);color:#FF8A80}
+
+.topbar{position:fixed;top:0;left:var(--sidebar-w);right:0;height:60px;background:var(--topbar-bg);border-bottom:1px solid var(--green-border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:90;gap:12px}
+.topbar-left{display:flex;align-items:center;gap:14px;flex-shrink:0}
+.menu-toggle{display:none;background:none;border:none;cursor:pointer;padding:6px;border-radius:6px;color:var(--gray)}
+.menu-toggle svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.page-title{font-family:'Montserrat',sans-serif;font-weight:800;font-size:16px;color:var(--white);letter-spacing:0.04em}
+.topbar-right{display:flex;align-items:center;gap:10px;flex-wrap:nowrap;overflow-x:auto}
+
+.filter-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.filter-select,.filter-input{padding:7px 12px;border:1px solid var(--green-border);border-radius:7px;font-family:'Inter',sans-serif;font-size:12.5px;color:var(--text);background:var(--bg-card);outline:none;cursor:pointer;transition:border-color 0.2s;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%236B8F71' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:26px}
+.filter-input{background-image:none;padding-right:12px;width:150px}
+.filter-select:focus,.filter-input:focus{border-color:var(--green-dim)}
+input[type=date].filter-input{width:140px}
+
+.btn-new{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;background:linear-gradient(135deg,#00C853 0%,#00A846 100%);color:#050D05;font-family:'Montserrat',sans-serif;font-weight:800;font-size:12px;border-radius:7px;text-decoration:none;transition:all 0.2s;white-space:nowrap;border:none;cursor:pointer;letter-spacing:0.04em;text-transform:uppercase}
+.btn-new:hover{background:linear-gradient(135deg,#00E676 0%,#00C853 100%);box-shadow:0 4px 14px rgba(0,200,83,0.3)}
+.btn-new svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round}
+
+.main{margin-left:var(--sidebar-w);padding-top:60px;min-height:100vh;position:relative;z-index:1}
+.main-inner{padding:24px}
+
+.summary-strip{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.strip-item{background:var(--bg-card);border:1px solid var(--green-border);border-radius:8px;padding:12px 16px;display:flex;flex-direction:column;gap:2px;min-width:110px}
+.strip-label{font-size:10px;color:var(--text-dim);font-weight:700;text-transform:uppercase;letter-spacing:0.08em}
+.strip-value{font-family:'Montserrat',sans-serif;font-weight:800;font-size:20px;color:var(--white)}
+.strip-value.green{color:var(--green)}
+.strip-value.red{color:#FF8A80}
+.strip-value.gold{color:#FBB724}
+
+.table-wrap{background:var(--bg-card);border-radius:12px;border:1px solid var(--green-border);overflow:hidden}
+.table-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:820px}
+thead th{background:rgba(0,230,118,0.04);font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);padding:12px 16px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--green-border)}
+tbody tr{border-bottom:1px solid rgba(0,230,118,0.06);transition:background 0.15s;cursor:pointer}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--green-glow)}
+tbody td{padding:13px 16px;font-size:15px;color:var(--text);vertical-align:middle}
+.td-client-name{font-weight:600;color:var(--white)}
+.td-client-phone{font-size:11px;color:var(--gray);margin-top:2px}
+.td-amount{font-family:'Montserrat',sans-serif;font-weight:700;color:var(--white)}
+.td-balance{font-family:'Montserrat',sans-serif;font-weight:700;color:#FF8A80}
+.td-balance.clear{color:var(--green)}
+
+.status-badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:0.06em;white-space:nowrap}
+.status-badge.pending{background:rgba(251,183,36,0.1);color:#FBB724;border:1px solid rgba(251,183,36,0.2)}
+.status-badge.assigned{background:rgba(59,130,246,0.1);color:#60A5FA;border:1px solid rgba(59,130,246,0.2)}
+.status-badge.completed{background:rgba(0,230,118,0.1);color:var(--green);border:1px solid rgba(0,230,118,0.2)}
+.status-badge.paid{background:rgba(0,200,83,0.15);color:#69F0AE;border:1px solid rgba(0,200,83,0.25)}
+
+.state-row td{text-align:center;padding:48px 24px;color:var(--gray);font-size:15px}
+
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-top:1px solid var(--green-border)}
+.pagination-info{font-size:12px;color:var(--text-dim)}
+.pagination-btns{display:flex;gap:6px}
+.page-btn{padding:6px 12px;border:1px solid var(--green-border);border-radius:6px;font-size:12px;font-weight:600;color:var(--text-dim);background:transparent;cursor:pointer;transition:all 0.2s}
+.page-btn:hover:not(:disabled){border-color:var(--green-border-strong);color:var(--green)}
+.page-btn:disabled{opacity:0.35;cursor:not-allowed}
+.page-btn.active{background:var(--green-dim);color:#050D05;border-color:var(--green-dim)}
+
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:300;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal{background:var(--bg-card);border-radius:14px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.6);border:1px solid var(--green-border)}
+.modal-header{padding:18px 22px;border-bottom:1px solid var(--green-border);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-family:'Montserrat',sans-serif;font-weight:700;font-size:15px;color:var(--white)}
+.modal-close{background:none;border:none;cursor:pointer;color:var(--gray);padding:4px;border-radius:6px;transition:color 0.2s}
+.modal-close:hover{color:var(--white)}
+.modal-close svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.modal-body{padding:22px}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.detail-item .detail-label{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:4px}
+.detail-item .detail-value{font-size:15px;color:var(--white);font-weight:500}
+.detail-item .detail-value.amount{font-family:'Montserrat',sans-serif;font-weight:700}
+.detail-full{grid-column:span 2}
+
+.amount-update-row{display:flex;align-items:center;gap:10px;margin-top:16px;padding-top:16px;border-top:1px solid var(--green-border);flex-wrap:wrap}
+.amount-update-row label{font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;white-space:nowrap}
+.amount-update-row input{flex:1;min-width:100px;padding:8px 12px;border:1px solid var(--green-border);border-radius:7px;font-family:'Inter',sans-serif;font-size:13px;color:var(--text);background:var(--bg-input);outline:none}
+.amount-update-row input:focus{border-color:var(--green-dim)}
+.btn-update-amount{padding:8px 16px;background:rgba(0,230,118,0.08);color:var(--green);font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;border:1px solid var(--green-border-strong);border-radius:7px;cursor:pointer;transition:all 0.2s;white-space:nowrap;text-transform:uppercase}
+.btn-update-amount:hover{background:rgba(0,230,118,0.15)}
+.status-update-row{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
+.status-update-row label{font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;white-space:nowrap}
+.status-update-select{flex:1;min-width:120px;padding:8px 12px;border:1px solid var(--green-border);border-radius:7px;font-family:'Inter',sans-serif;font-size:15px;color:var(--text);background:var(--bg-input);outline:none;-webkit-appearance:none;appearance:none}
+.status-update-select:focus{border-color:var(--green-dim)}
+.btn-update-status{padding:8px 16px;background:linear-gradient(135deg,#00C853,#00A846);color:#050D05;font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;border:none;border-radius:7px;cursor:pointer;transition:all 0.2s;white-space:nowrap;text-transform:uppercase;letter-spacing:0.04em}
+.btn-update-status:hover{background:linear-gradient(135deg,#00E676,#00C853)}
+
+.modal-footer{padding:14px 22px;border-top:1px solid var(--green-border);display:flex;gap:10px;justify-content:flex-end}
+.btn-delete{padding:9px 18px;background:rgba(255,82,82,0.08);color:#FF8A80;font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;border:1px solid rgba(255,82,82,0.2);border-radius:7px;cursor:pointer;transition:all 0.2s;text-transform:uppercase}
+.btn-delete:hover{background:rgba(255,82,82,0.15)}
+.btn-modal-close{padding:9px 18px;background:transparent;color:var(--text-dim);font-family:'Montserrat',sans-serif;font-weight:600;font-size:12px;border:1px solid var(--green-border);border-radius:7px;cursor:pointer;transition:all 0.2s}
+.btn-modal-close:hover{border-color:var(--green-border-strong);color:var(--white)}
+
+.toast{display:none;position:fixed;top:76px;right:20px;z-index:999;padding:14px 20px;border-radius:10px;font-size:15px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.4);max-width:320px}
+.toast.success{background:rgba(0,230,118,0.1);color:var(--green);border:1px solid rgba(0,230,118,0.25);display:block}
+.toast.error{background:rgba(255,82,82,0.1);color:#FF8A80;border:1px solid rgba(255,82,82,0.25);display:block}
+
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay.show{display:block}
+  .topbar{left:0;padding:0 14px;height:60px;flex-wrap:nowrap}
+  .topbar-right{display:none}
+  .main{margin-left:0}
+  .menu-toggle{display:flex}
+  .main-inner{padding:14px}
+  .mobile-filter-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+  .filter-input{width:100px}
+  .detail-grid{grid-template-columns:1fr}
+  .detail-full{grid-column:span 1}
+}
+@media(min-width:769px){
+  .mobile-filter-bar{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="overlay"></div>
+<div class="toast" id="toast"></div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Booking Details</span>
+      <button class="modal-close" id="modalClose"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-grid" id="detailGrid"></div>
+      <div class="amount-update-row">
+        <label>Amount Paid (KES)</label>
+        <input type="number" id="amountPaidUpdate" placeholder="0" min="0">
+        <button class="btn-update-amount" id="updateAmountBtn">Save</button>
+      </div>
+      <div class="status-update-row">
+        <label>Update Status</label>
+        <select class="status-update-select" id="statusUpdateSelect">
+          <option value="Pending">Pending</option>
+          <option value="Assigned">Assigned</option>
+          <option value="Completed">Completed</option>
+          <option value="Paid">Paid</option>
+        </select>
+        <button class="btn-update-status" id="updateStatusBtn">Update</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-modal-close" id="modalCloseBtn">Close</button>
+      <button class="btn-delete" id="deleteBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <img src="https://res.cloudinary.com/hztm3zo8/image/upload/v1782422764/FB_IMG_1781877214514_qq7dt6.jpg" alt="Ecolife">
+    <div class="brand-text">ECOLIFE <span>Operations System</span></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a class="nav-item" href="dashboard.html">
+      <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-item active" href="bookings.html">
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Bookings
+    </a>
+    <a class="nav-item" href="new-booking.html">
+      <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      New Booking
+    </a>
+    <div class="nav-section-label">Management</div>
+    <a class="nav-item" href="technicians.html">
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Technicians
+    </a>
+    <a class="nav-item" href="reports.html">
+      <svg class="nav-icon" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Reports
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="user-avatar" id="userAvatar">E</div>
+      <div class="user-info">
+        <div class="user-name" id="userName">Loading...</div>
+        <div class="user-role">Admin</div>
+      </div>
+    </div>
+    <button class="btn-signout" id="signOutBtn">
+      <svg style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sign Out
+    </button>
+  </div>
+</aside>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <button class="menu-toggle" id="menuToggle">
+      <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <span class="page-title">Bookings</span>
+  </div>
+  <div class="topbar-right">
+    <div class="filter-bar">
+      <input class="filter-input" type="text" id="searchInput" placeholder="Search client...">
+      <select class="filter-select" id="filterBranch">
+        <option value="all">All Branches</option>
+        <option>Nairobi</option><option>Nakuru</option><option>Eldoret</option><option>Mombasa</option>
+      </select>
+      <select class="filter-select" id="filterStatus">
+        <option value="all">All Statuses</option>
+        <option>Pending</option><option>Assigned</option><option>Completed</option><option>Paid</option>
+      </select>
+      <input class="filter-input" type="date" id="filterDate">
+    </div>
+    <a class="btn-new" href="new-booking.html">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New Booking
+    </a>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="main-inner">
+
+    <!-- MOBILE FILTER BAR -->
+    <div class="mobile-filter-bar">
+      <input class="filter-input" type="text" id="searchInputMob" placeholder="Search...">
+      <select class="filter-select" id="filterBranchMob">
+        <option value="all">All Branches</option>
+        <option>Nairobi</option><option>Nakuru</option><option>Eldoret</option><option>Mombasa</option>
+      </select>
+      <select class="filter-select" id="filterStatusMob">
+        <option value="all">All Statuses</option>
+        <option>Pending</option><option>Assigned</option><option>Completed</option><option>Paid</option>
+      </select>
+      <a class="btn-new" href="new-booking.html" style="padding:7px 12px;font-size:11px">
+        <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New
+      </a>
+    </div>
+
+    <div class="summary-strip">
+      <div class="strip-item"><span class="strip-label">Total</span><span class="strip-value" id="stripTotal">0</span></div>
+      <div class="strip-item"><span class="strip-label">Completed</span><span class="strip-value green" id="stripCompleted">0</span></div>
+      <div class="strip-item"><span class="strip-label">Pending</span><span class="strip-value gold" id="stripPending">0</span></div>
+      <div class="strip-item"><span class="strip-label">Sales (KES)</span><span class="strip-value" id="stripSales">0</span></div>
+      <div class="strip-item"><span class="strip-label">Outstanding (KES)</span><span class="strip-value red" id="stripBalance">0</span></div>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Client</th>
+              <th>Service</th>
+              <th>Branch</th>
+              <th>Technician</th>
+              <th>Charged (KES)</th>
+              <th>Paid (KES)</th>
+              <th>Balance (KES)</th>
+              <th>Status</th>
+              <th>Service Date</th>
+            </tr>
+          </thead>
+          <tbody id="bookingsBody">
+            <tr class="state-row"><td colspan="9">Loading bookings...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination" id="paginationBar">
+        <span class="pagination-info" id="paginationInfo"></span>
+        <div class="pagination-btns" id="paginationBtns"></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+  import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBxi76PxDat-G5bjcUQ2MmPe0mGcTE-izs",
+    authDomain: "ecolife-system-ff2d6.firebaseapp.com",
+    databaseURL: "https://ecolife-system-ff2d6-default-rtdb.firebaseio.com",
+    projectId: "ecolife-system-ff2d6",
+    storageBucket: "ecolife-system-ff2d6.firebasestorage.app",
+    messagingSenderId: "421807560122",
+    appId: "1:421807560122:web:877a49223b03ba4a477983"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  const PER_PAGE = 15;
+  let allBookings   = [];
+  let filtered      = [];
+  let currentPage   = 1;
+  let activeBooking = null;
+
+  document.getElementById('menuToggle').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('show');
+  });
+  document.getElementById('overlay').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('show');
+  });
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = 'index.html'; return; }
+    document.getElementById('userAvatar').textContent = user.email.charAt(0).toUpperCase();
+    document.getElementById('userName').textContent   = user.email.split('@')[0];
+    await loadBookings();
+  });
+
+  document.getElementById('signOutBtn').addEventListener('click', async () => {
+    await signOut(auth);
+    window.location.href = 'index.html';
+  });
+
+  async function loadBookings(){
+    try{
+      const snap  = await getDocs(collection(db,'bookings'));
+      allBookings = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      allBookings.sort((a,b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
+      applyFilters();
+    } catch(e){
+      document.getElementById('bookingsBody').innerHTML = '<tr class="state-row"><td colspan="9">Failed to load bookings. Please refresh.</td></tr>';
+    }
+  }
+
+  ['searchInput','filterBranch','filterStatus','filterDate'].forEach(id => {
+    document.getElementById(id).addEventListener('input',  () => { currentPage=1; applyFilters(); });
+    document.getElementById(id).addEventListener('change', () => { currentPage=1; applyFilters(); });
+  });
+
+  function applyFilters(){
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const branch = document.getElementById('filterBranch').value;
+    const status = document.getElementById('filterStatus').value;
+    const date   = document.getElementById('filterDate').value;
+
+    filtered = allBookings.filter(b => {
+      const matchSearch = !search || (b.clientName||''). toLowerCase().includes(search) || (b.clientPhone||'').includes(search);
+      const matchBranch = branch === 'all' || b.branch === branch;
+      const matchStatus = status === 'all' || b.status === status;
+      const matchDate   = !date || b.serviceDate === date;
+      return matchSearch && matchBranch && matchStatus && matchDate;
+    });
+
+    updateSummary();
+    renderTable();
+    renderPagination();
+  }
+
+  function updateSummary(){
+    const total     = filtered.length;
+    const completed = filtered.filter(b => b.status==='Completed'||b.status==='Paid').length;
+    const pending   = filtered.filter(b => b.status==='Pending'||b.status==='Assigned').length;
+    const sales     = filtered.reduce((s,b) => s+(parseFloat(b.amountCharged)||0),0);
+    const balance   = filtered.reduce((s,b) => s+(parseFloat(b.balance)||0),0);
+    document.getElementById('stripTotal').textContent     = total;
+    document.getElementById('stripCompleted').textContent = completed;
+    document.getElementById('stripPending').textContent   = pending;
+    document.getElementById('stripSales').textContent     = fKES(sales);
+    document.getElementById('stripBalance').textContent   = fKES(balance);
+  }
+
+  function renderTable(){
+    const tbody = document.getElementById('bookingsBody');
+    const start = (currentPage-1)*PER_PAGE;
+    const paged = filtered.slice(start, start+PER_PAGE);
+
+    if(filtered.length===0){
+      tbody.innerHTML = '<tr class="state-row"><td colspan="9">No bookings found. Adjust your filters or create a new booking.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = paged.map(b => {
+      const bal = parseFloat(b.balance)||0;
+      return `<tr onclick="openBooking('${b.id}')">
+        <td>
+          <div class="td-client-name">${esc(b.clientName||'--')}</div>
+          <div class="td-client-phone">${esc(b.clientPhone||'')}</div>
+        </td>
+        <td>${esc(b.serviceRequired||'--')}</td>
+        <td>${esc(b.branch||'--')}</td>
+        <td>${esc(b.technicianAssigned||'Unassigned')}</td>
+        <td class="td-amount">${fKES(b.amountCharged)}</td>
+        <td class="td-amount">${fKES(b.amountPaid)}</td>
+        <td class="td-amount ${bal>0?'td-balance':'td-balance clear'}">${fKES(bal)}</td>
+        <td><span class="status-badge ${(b.status||'pending').toLowerCase()}">${esc(b.status||'Pending')}</span></td>
+        <td>${fDate(b.serviceDate)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function renderPagination(){
+    const total = filtered.length;
+    const pages = Math.ceil(total/PER_PAGE);
+    const start = Math.min((currentPage-1)*PER_PAGE+1,total);
+    const end   = Math.min(currentPage*PER_PAGE,total);
+    document.getElementById('paginationInfo').textContent = total>0?`Showing ${start} to ${end} of ${total}`:'';
+    const btns = document.getElementById('paginationBtns');
+    btns.innerHTML = '';
+    if(pages<=1) return;
+    const prev = document.createElement('button');
+    prev.className='page-btn';prev.textContent='Prev';prev.disabled=currentPage===1;
+    prev.addEventListener('click',()=>{currentPage--;renderTable();renderPagination();});
+    btns.appendChild(prev);
+    for(let i=1;i<=pages;i++){
+      if(pages>7&&i>2&&i<pages-1&&Math.abs(i-currentPage)>1) continue;
+      const btn=document.createElement('button');
+      btn.className='page-btn'+(i===currentPage?' active':'');
+      btn.textContent=i;
+      btn.addEventListener('click',()=>{currentPage=i;renderTable();renderPagination();});
+      btns.appendChild(btn);
+    }
+    const next=document.createElement('button');
+    next.className='page-btn';next.textContent='Next';next.disabled=currentPage===pages;
+    next.addEventListener('click',()=>{currentPage++;renderTable();renderPagination();});
+    btns.appendChild(next);
+  }
+
+  window.openBooking = function(id){
+    activeBooking = allBookings.find(b => b.id===id);
+    if(!activeBooking) return;
+    const b   = activeBooking;
+    const bal = parseFloat(b.balance)||0;
+    document.getElementById('detailGrid').innerHTML = `
+      <div class="detail-item"><div class="detail-label">Client Name</div><div class="detail-value">${esc(b.clientName||'--')}</div></div>
+      <div class="detail-item"><div class="detail-label">Phone</div><div class="detail-value">${esc(b.clientPhone||'--')}</div></div>
+      <div class="detail-item"><div class="detail-label">Location</div><div class="detail-value">${esc(b.location||'--')}</div></div>
+      <div class="detail-item"><div class="detail-label">Estate</div><div class="detail-value">${esc(b.estate||'--')}</div></div>
+      <div class="detail-item"><div class="detail-label">Branch</div><div class="detail-value">${esc(b.branch||'--')}</div></div>
+      <div class="detail-item"><div class="detail-label">Technician</div><div class="detail-value">${esc(b.technicianAssigned||'Unassigned')}</div></div>
+      <div class="detail-item"><div class="detail-label">Service Required</div><div class="detail-value">${esc(b.serviceRequired||'--')}</div></div>
+      <div class="detail-item"><div class="detail-label">Pest Targeted</div><div class="detail-value">${esc(b.pestTargeted||'--')}</div></div>
+      <div class="detail-item"><div class="detail-label">Property Size</div><div class="detail-value">${esc(b.propertySize||'--')}</div></div>
+      <div class="detail-item"><div class="detail-label">Service Date</div><div class="detail-value">${fDate(b.serviceDate)}</div></div>
+      <div class="detail-item"><div class="detail-label">Booking Date</div><div class="detail-value">${fDate(b.bookingDate)}</div></div>
+      <div class="detail-item"><div class="detail-label">Time</div><div class="detail-value">${esc(b.serviceTime||'--')}</div></div>
+      <div class="detail-item"><div class="detail-label">Amount Charged</div><div class="detail-value amount">KES ${fKES(b.amountCharged)}</div></div>
+      <div class="detail-item"><div class="detail-label">Amount Paid</div><div class="detail-value amount">KES ${fKES(b.amountPaid)}</div></div>
+      <div class="detail-item"><div class="detail-label">Balance</div><div class="detail-value amount" style="color:${bal>0?'#FF8A80':'#00E676'}"}>KES ${fKES(bal)}</div></div>
+      <div class="detail-item"><div class="detail-label">Status</div><div class="detail-value"><span class="status-badge ${(b.status||'pending').toLowerCase()}">${esc(b.status||'Pending')}</span></div></div>
+      <div class="detail-item detail-full"><div class="detail-label">Notes</div><div class="detail-value">${esc(b.notes||'No notes added.')}</div></div>
+    `;
+    document.getElementById('statusUpdateSelect').value = b.status||'Pending';
+    document.getElementById('amountPaidUpdate').value = parseFloat(b.amountPaid)||0;
+    document.getElementById('modalBg').classList.add('open');
+  };
+
+  ['modalClose','modalCloseBtn'].forEach(id => {
+    document.getElementById(id).addEventListener('click',()=>{
+      document.getElementById('modalBg').classList.remove('open');
+      activeBooking=null;
+    });
+  });
+
+  document.getElementById('modalBg').addEventListener('click',e=>{
+    if(e.target===document.getElementById('modalBg')){
+      document.getElementById('modalBg').classList.remove('open');
+      activeBooking=null;
+    }
+  });
+
+  document.getElementById('updateAmountBtn').addEventListener('click', async ()=>{
+    if(!activeBooking) return;
+    const newPaid    = parseFloat(document.getElementById('amountPaidUpdate').value)||0;
+    const newBalance = (parseFloat(activeBooking.amountCharged)||0) - newPaid;
+    try{
+      await updateDoc(doc(db,'bookings',activeBooking.id),{amountPaid:newPaid,balance:newBalance});
+      activeBooking.amountPaid=newPaid;
+      activeBooking.balance=newBalance;
+      const idx=allBookings.findIndex(b=>b.id===activeBooking.id);
+      if(idx>-1){allBookings[idx].amountPaid=newPaid;allBookings[idx].balance=newBalance;}
+      applyFilters();
+      showToast('Amount paid updated to KES '+newPaid.toLocaleString('en-KE')+'.','success');
+      document.getElementById('modalBg').classList.remove('open');
+    } catch(e){ showToast('Failed to update amount. Please try again.','error'); }
+  });
+
+  document.getElementById('updateStatusBtn').addEventListener('click', async ()=>{
+    if(!activeBooking) return;
+    const newStatus = document.getElementById('statusUpdateSelect').value;
+    try{
+      await updateDoc(doc(db,'bookings',activeBooking.id),{status:newStatus});
+      activeBooking.status=newStatus;
+      const idx=allBookings.findIndex(b=>b.id===activeBooking.id);
+      if(idx>-1) allBookings[idx].status=newStatus;
+      applyFilters();
+      showToast('Status updated to '+newStatus+'.','success');
+      document.getElementById('modalBg').classList.remove('open');
+    } catch(e){ showToast('Failed to update status.','error'); }
+  });
+
+  document.getElementById('deleteBtn').addEventListener('click', async ()=>{
+    if(!activeBooking) return;
+    if(!confirm('Delete this booking? This cannot be undone.')) return;
+    try{
+      await deleteDoc(doc(db,'bookings',activeBooking.id));
+      allBookings=allBookings.filter(b=>b.id!==activeBooking.id);
+      applyFilters();
+      showToast('Booking deleted.','success');
+      document.getElementById('modalBg').classList.remove('open');
+      activeBooking=null;
+    } catch(e){ showToast('Failed to delete booking.','error'); }
+  });
+
+  function showToast(msg,type){
+    const t=document.getElementById('toast');
+    t.textContent=msg;t.className='toast '+type;
+    setTimeout(()=>{t.className='toast';},4000);
+  }
+
+  function fKES(val){ const n=parseFloat(val)||0; return n.toLocaleString('en-KE',{minimumFractionDigits:0,maximumFractionDigits:0}); }
+  function fDate(val){ if(!val) return '--'; const d=new Date(val); return isNaN(d)?val:d.toLocaleDateString('en-KE',{day:'2-digit',month:'short',year:'numeric'}); }
+  function esc(str){ return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+</body>
+</html>
