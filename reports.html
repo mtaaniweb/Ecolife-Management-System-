@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ecolife System | Reports</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#060D06;
+  --bg-card:#0C160C;
+  --bg-input:#0F1A0F;
+  --sidebar-bg:#080F08;
+  --topbar-bg:#0A120A;
+  --green:#00E676;
+  --green-dim:#00C853;
+  --green-glow:rgba(0,230,118,0.08);
+  --green-border:rgba(0,230,118,0.18);
+  --green-border-strong:rgba(0,230,118,0.35);
+  --white:#E8F5E9;
+  --gray:#6B8F71;
+  --gray-dim:#3D5E42;
+  --text:#C8E6C9;
+  --text-dim:#8BAD8F;
+  --error:#FF5252;
+  --sidebar-w:240px;
+}
+
+html,body{height:100%;font-family:'Inter',sans-serif;color:var(--text);background:var(--bg)}
+
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 10% 10%,rgba(0,230,118,0.05) 0%,transparent 50%),radial-gradient(ellipse at 90% 90%,rgba(0,200,83,0.06) 0%,transparent 50%);pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,230,118,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,230,118,0.02) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);background:var(--sidebar-bg);border-right:1px solid var(--green-border);display:flex;flex-direction:column;z-index:100;transition:transform 0.3s}
+.sidebar-brand{padding:22px 20px 18px;border-bottom:1px solid var(--green-border);display:flex;align-items:center;gap:12px}
+.sidebar-brand img{width:38px;height:38px;border-radius:50%;object-fit:cover;border:1.5px solid var(--green-border-strong);flex-shrink:0;box-shadow:0 0 12px rgba(0,230,118,0.15)}
+.brand-text{font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;color:var(--green);letter-spacing:0.06em;line-height:1.2}
+.brand-text span{display:block;font-weight:500;font-size:10px;color:var(--gray);letter-spacing:0.1em;text-transform:uppercase}
+.sidebar-nav{flex:1;padding:14px 0;overflow-y:auto}
+.nav-section-label{font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gray-dim);padding:10px 20px 6px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 20px;cursor:pointer;color:var(--text-dim);font-size:15px;font-weight:500;transition:all 0.2s;border-left:2px solid transparent;text-decoration:none}
+.nav-item:hover{background:var(--green-glow);color:var(--white)}
+.nav-item.active{background:rgba(0,230,118,0.08);color:var(--green);border-left-color:var(--green)}
+.nav-icon{width:17px;height:17px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sidebar-footer{padding:14px 20px;border-top:1px solid var(--green-border)}
+.user-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:rgba(0,230,118,0.1);border:1px solid var(--green-border-strong);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;color:var(--green);flex-shrink:0}
+.user-info{flex:1;min-width:0}
+.user-name{font-size:14px;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-role{font-size:10px;color:var(--gray);letter-spacing:0.08em;text-transform:uppercase}
+.btn-signout{width:100%;padding:8px;background:rgba(255,82,82,0.06);border:1px solid rgba(255,82,82,0.15);border-radius:7px;color:rgba(255,130,130,0.7);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-signout:hover{background:rgba(255,82,82,0.12);border-color:rgba(255,82,82,0.3);color:#FF8A80}
+
+.topbar{position:fixed;top:0;left:var(--sidebar-w);right:0;height:60px;background:var(--topbar-bg);border-bottom:1px solid var(--green-border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:90;gap:12px}
+.topbar-left{display:flex;align-items:center;gap:14px}
+.menu-toggle{display:none;background:none;border:none;cursor:pointer;padding:6px;border-radius:6px;color:var(--gray)}
+.menu-toggle svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.page-title{font-family:'Montserrat',sans-serif;font-weight:800;font-size:16px;color:var(--white);letter-spacing:0.04em}
+.btn-print{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;background:rgba(0,230,118,0.08);color:var(--green);font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;border-radius:7px;border:1px solid var(--green-border-strong);cursor:pointer;transition:all 0.2s;letter-spacing:0.04em;text-transform:uppercase}
+.btn-print:hover{background:rgba(0,230,118,0.15)}
+.btn-print svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.main{margin-left:var(--sidebar-w);padding-top:60px;min-height:100vh;position:relative;z-index:1}
+.main-inner{padding:24px}
+
+/* FILTER CARD */
+.filter-card{background:var(--bg-card);border:1px solid var(--green-border);border-radius:10px;padding:18px 20px;margin-bottom:24px}
+.filter-card-title{font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px}
+.filter-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.filter-group{display:flex;flex-direction:column;gap:5px;min-width:130px}
+.filter-group label{font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em}
+.filter-select,.filter-date{padding:9px 12px;border:1px solid var(--green-border);border-radius:7px;font-family:'Inter',sans-serif;font-size:12.5px;color:var(--text);background:var(--bg-input);outline:none;cursor:pointer;transition:border-color 0.2s;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%236B8F71' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;padding-right:28px}
+.filter-date{background-image:none;padding-right:12px}
+.filter-select:focus,.filter-date:focus{border-color:var(--green-dim)}
+.btn-apply{padding:9px 20px;background:linear-gradient(135deg,#00C853,#00A846);color:#050D05;font-family:'Montserrat',sans-serif;font-weight:800;font-size:12px;border:none;border-radius:7px;cursor:pointer;transition:all 0.2s;white-space:nowrap;align-self:flex-end;text-transform:uppercase;letter-spacing:0.04em}
+.btn-apply:hover{background:linear-gradient(135deg,#00E676,#00C853);box-shadow:0 4px 14px rgba(0,200,83,0.3)}
+
+/* SUMMARY */
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:24px}
+.sum-card{background:var(--bg-card);border:1px solid var(--green-border);border-radius:10px;padding:16px;position:relative;overflow:hidden;transition:all 0.2s}
+.sum-card:hover{border-color:var(--green-border-strong);box-shadow:0 0 16px rgba(0,230,118,0.07)}
+.sum-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--green-dim),transparent);opacity:0.5}
+.sum-label{font-size:10px;color:var(--text-dim);font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
+.sum-value{font-family:'Montserrat',sans-serif;font-weight:800;font-size:24px;color:var(--white);line-height:1}
+.sum-sub{font-size:11px;color:var(--gray);margin-top:4px}
+
+/* REPORT SECTIONS */
+.report-section{background:var(--bg-card);border:1px solid var(--green-border);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.report-section-header{padding:14px 20px;border-bottom:1px solid var(--green-border);display:flex;align-items:center;justify-content:space-between}
+.report-section-title{font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;color:var(--white);letter-spacing:0.04em}
+.report-count{font-size:11px;color:var(--text-dim);font-weight:500}
+.table-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:500px}
+thead th{background:rgba(0,230,118,0.04);font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);padding:11px 16px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--green-border)}
+tbody tr{border-bottom:1px solid rgba(0,230,118,0.06);transition:background 0.15s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--green-glow)}
+tbody td{padding:12px 16px;font-size:15px;color:var(--text);vertical-align:middle}
+.td-name{font-weight:600;color:var(--white)}
+.td-amount{font-family:'Montserrat',sans-serif;font-weight:700;color:var(--white)}
+.td-balance{font-family:'Montserrat',sans-serif;font-weight:700;color:#FF8A80}
+.td-balance.clear{color:var(--green)}
+.td-rank{font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;color:var(--green);width:32px}
+
+.progress-wrap{display:flex;align-items:center;gap:8px}
+.progress-bar-bg{flex:1;height:5px;background:rgba(0,230,118,0.1);border-radius:3px;overflow:hidden;min-width:50px}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--green-dim),var(--green));border-radius:3px;transition:width 0.4s}
+.progress-pct{font-size:11px;color:var(--text-dim);font-weight:600;white-space:nowrap}
+
+.status-badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:10px;font-weight:700;white-space:nowrap}
+.status-badge.pending{background:rgba(251,183,36,0.1);color:#FBB724;border:1px solid rgba(251,183,36,0.2)}
+.status-badge.assigned{background:rgba(59,130,246,0.1);color:#60A5FA;border:1px solid rgba(59,130,246,0.2)}
+.status-badge.completed{background:rgba(0,230,118,0.1);color:var(--green);border:1px solid rgba(0,230,118,0.2)}
+.status-badge.paid{background:rgba(0,200,83,0.15);color:#69F0AE;border:1px solid rgba(0,200,83,0.25)}
+
+.empty-row td{text-align:center;color:var(--gray);padding:32px;font-size:14px}
+
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99}
+
+@media print{
+  .sidebar,.topbar,.filter-card,.sidebar-overlay,.btn-print,.menu-toggle{display:none!important}
+  .main{margin-left:0;padding-top:0;background:#fff}
+  .main-inner{padding:0}
+  body{background:#fff;color:#111}
+  .report-section{break-inside:avoid;border:1px solid #ccc;margin-bottom:16px;background:#fff}
+  .summary-grid{grid-template-columns:repeat(4,1fr)}
+  thead th{background:#f3f4f6;color:#374151}
+  tbody td{color:#111}
+  .td-name,.td-amount{color:#111}
+  .sum-value{color:#111}
+}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay.show{display:block}
+  .topbar{left:0}
+  .main{margin-left:0}
+  .menu-toggle{display:flex}
+  .main-inner{padding:16px}
+  .filter-row{gap:8px}
+  .filter-group{min-width:110px}
+}
+</style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="overlay"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <img src="https://res.cloudinary.com/hztm3zo8/image/upload/v1782422764/FB_IMG_1781877214514_qq7dt6.jpg" alt="Ecolife">
+    <div class="brand-text">ECOLIFE <span>Operations System</span></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a class="nav-item" href="dashboard.html">
+      <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-item" href="bookings.html">
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Bookings
+    </a>
+    <a class="nav-item" href="new-booking.html">
+      <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      New Booking
+    </a>
+    <div class="nav-section-label">Management</div>
+    <a class="nav-item" href="technicians.html">
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Technicians
+    </a>
+    <a class="nav-item active" href="reports.html">
+      <svg class="nav-icon" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Reports
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="user-avatar" id="userAvatar">E</div>
+      <div class="user-info">
+        <div class="user-name" id="userName">Loading...</div>
+        <div class="user-role">Admin</div>
+      </div>
+    </div>
+    <button class="btn-signout" id="signOutBtn">
+      <svg style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sign Out
+    </button>
+  </div>
+</aside>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <button class="menu-toggle" id="menuToggle">
+      <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <span class="page-title">Reports</span>
+  </div>
+  <button class="btn-print" onclick="window.print()">
+    <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+    Print Report
+  </button>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="main-inner">
+
+    <div class="filter-card">
+      <div class="filter-card-title">Filter Reports</div>
+      <div class="filter-row">
+        <div class="filter-group">
+          <label>Period</label>
+          <select class="filter-select" id="filterPeriod">
+            <option value="all">All Time</option>
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>From Date</label>
+          <input class="filter-date" type="date" id="filterFrom">
+        </div>
+        <div class="filter-group">
+          <label>To Date</label>
+          <input class="filter-date" type="date" id="filterTo">
+        </div>
+        <div class="filter-group">
+          <label>Region / Branch</label>
+          <select class="filter-select" id="filterBranch">
+            <option value="all">All Branches</option>
+            <option>Nairobi</option><option>Nakuru</option><option>Eldoret</option><option>Mombasa</option>
+<option>Kisumu</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Technician</label>
+          <select class="filter-select" id="filterTech">
+            <option value="all">All Technicians</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Payment Status</label>
+          <select class="filter-select" id="filterPayment">
+            <option value="all">All Statuses</option>
+            <option value="paid">Fully Paid</option>
+            <option value="partial">Partially Paid</option>
+            <option value="unpaid">Unpaid</option>
+          </select>
+        </div>
+        <button class="btn-apply" id="applyBtn">Generate</button>
+      </div>
+    </div>
+
+    <div class="summary-grid">
+      <div class="sum-card"><div class="sum-label">Total Bookings</div><div class="sum-value" id="sumTotal">0</div><div class="sum-sub" id="sumPeriodLabel">All time</div></div>
+      <div class="sum-card"><div class="sum-label">Total Sales (KES)</div><div class="sum-value" id="sumSales">0</div><div class="sum-sub">Amount charged</div></div>
+      <div class="sum-card"><div class="sum-label">Collected (KES)</div><div class="sum-value" id="sumCollected">0</div><div class="sum-sub">Amount paid</div></div>
+      <div class="sum-card"><div class="sum-label">Outstanding (KES)</div><div class="sum-value" id="sumBalance" style="color:#FF8A80">0</div><div class="sum-sub">Pending balance</div></div>
+      <div class="sum-card"><div class="sum-label">Completed Jobs</div><div class="sum-value" id="sumCompleted" style="color:var(--green)">0</div><div class="sum-sub">Completed and paid</div></div>
+      <div class="sum-card"><div class="sum-label">Pending Jobs</div><div class="sum-value" id="sumPending" style="color:#FBB724">0</div><div class="sum-sub">Pending and assigned</div></div>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-header">
+        <span class="report-section-title">Sales per Technician</span>
+        <span class="report-count" id="techReportCount"></span>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th style="width:32px"></th><th>Technician</th><th>Branch</th><th>Jobs</th><th>Completed</th><th>Sales (KES)</th><th>Collected (KES)</th><th>Outstanding (KES)</th><th>Completion</th></tr></thead>
+          <tbody id="techReportBody"><tr class="empty-row"><td colspan="9">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-header">
+        <span class="report-section-title">Sales per Region / Branch</span>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Branch</th><th>Total Jobs</th><th>Completed</th><th>Sales (KES)</th><th>Collected (KES)</th><th>Outstanding (KES)</th><th>Completion Rate</th></tr></thead>
+          <tbody id="branchReportBody"><tr class="empty-row"><td colspan="7">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-header">
+        <span class="report-section-title">Customers per Region</span>
+        <span class="report-count" id="customerRegionCount"></span>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Region / Branch</th><th>Total Customers</th><th>Total Jobs</th><th>Total Sales (KES)</th><th>Top Service</th></tr></thead>
+          <tbody id="customerRegionBody"><tr class="empty-row"><td colspan="5">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-header">
+        <span class="report-section-title">Daily Bookings</span>
+        <span class="report-count" id="dailyCount"></span>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Date</th><th>Client</th><th>Service</th><th>Branch</th><th>Technician</th><th>Sales (KES)</th><th>Paid (KES)</th><th>Status</th></tr></thead>
+          <tbody id="dailyBody"><tr class="empty-row"><td colspan="8">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-header">
+        <span class="report-section-title">Pending Balances</span>
+        <span class="report-count" id="pendingBalCount"></span>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Client</th><th>Phone</th><th>Branch</th><th>Technician</th><th>Service Date</th><th>Charged (KES)</th><th>Paid (KES)</th><th>Balance (KES)</th><th>Status</th></tr></thead>
+          <tbody id="pendingBalBody"><tr class="empty-row"><td colspan="9">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script type="module">
+  import { initializeApp }    from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+  import { getFirestore, collection, getDocs }    from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBxi76PxDat-G5bjcUQ2MmPe0mGcTE-izs",
+    authDomain: "ecolife-system-ff2d6.firebaseapp.com",
+    databaseURL: "https://ecolife-system-ff2d6-default-rtdb.firebaseio.com",
+    projectId: "ecolife-system-ff2d6",
+    storageBucket: "ecolife-system-ff2d6.firebasestorage.app",
+    messagingSenderId: "421807560122",
+    appId: "1:421807560122:web:877a49223b03ba4a477983"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  let allBookings = [];
+  let allTechs    = [];
+
+  document.getElementById('menuToggle').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('show');
+  });
+  document.getElementById('overlay').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('show');
+  });
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = 'index.html'; return; }
+    document.getElementById('userAvatar').textContent = user.email.charAt(0).toUpperCase();
+    document.getElementById('userName').textContent   = user.email.split('@')[0];
+    await Promise.all([loadBookings(), loadTechs()]);
+    populateTechFilter();
+    generateReport();
+  });
+
+  document.getElementById('signOutBtn').addEventListener('click', async () => {
+    await signOut(auth);
+    window.location.href = 'index.html';
+  });
+
+  document.getElementById('applyBtn').addEventListener('click', generateReport);
+
+  document.getElementById('filterPeriod').addEventListener('change', function(){
+    const today = new Date();
+    const fmt   = d => d.toISOString().split('T')[0];
+    if(this.value==='today'){ document.getElementById('filterFrom').value=fmt(today); document.getElementById('filterTo').value=fmt(today); }
+    else if(this.value==='week'){ const mon=new Date(today); mon.setDate(today.getDate()-today.getDay()+1); document.getElementById('filterFrom').value=fmt(mon); document.getElementById('filterTo').value=fmt(today); }
+    else if(this.value==='month'){ document.getElementById('filterFrom').value=fmt(new Date(today.getFullYear(),today.getMonth(),1)); document.getElementById('filterTo').value=fmt(today); }
+    else{ document.getElementById('filterFrom').value=''; document.getElementById('filterTo').value=''; }
+  });
+
+  async function loadBookings(){ const snap=await getDocs(collection(db,'bookings')); allBookings=snap.docs.map(d=>({id:d.id,...d.data()})); }
+  async function loadTechs(){ const snap=await getDocs(collection(db,'technicians')); allTechs=snap.docs.map(d=>({id:d.id,...d.data()})); }
+
+  function populateTechFilter(){
+    const sel=document.getElementById('filterTech');
+    allTechs.forEach(t=>{ const opt=document.createElement('option'); opt.value=t.name; opt.textContent=t.name; sel.appendChild(opt); });
+  }
+
+  function generateReport(){
+    const branch  = document.getElementById('filterBranch').value;
+    const from    = document.getElementById('filterFrom').value;
+    const to      = document.getElementById('filterTo').value;
+    const tech    = document.getElementById('filterTech').value;
+    const payment = document.getElementById('filterPayment').value;
+    const period  = document.getElementById('filterPeriod').value;
+
+    let filtered = allBookings.filter(b => {
+      const matchBranch = branch==='all'||b.branch===branch;
+      const matchFrom   = !from||(b.serviceDate&&b.serviceDate>=from);
+      const matchTo     = !to||(b.serviceDate&&b.serviceDate<=to);
+      const matchTech   = tech==='all'||b.technicianAssigned===tech;
+      const charged=parseFloat(b.amountCharged)||0;
+      const paid=parseFloat(b.amountPaid)||0;
+      const balance=charged-paid;
+      let matchPayment=true;
+      if(payment==='paid')    matchPayment=balance<=0&&charged>0;
+      if(payment==='partial') matchPayment=paid>0&&balance>0;
+      if(payment==='unpaid')  matchPayment=paid===0&&charged>0;
+      return matchBranch&&matchFrom&&matchTo&&matchTech&&matchPayment;
+    });
+
+    const labels={today:'Today',week:'This week',month:'This month',all:'All time'};
+    document.getElementById('sumPeriodLabel').textContent=labels[period]||'All time';
+
+    renderSummary(filtered);
+    renderTechReport(filtered);
+    renderBranchReport(filtered);
+    renderCustomerRegion(filtered);
+    renderDailyReport(filtered);
+    renderPendingBalances(filtered);
+  }
+
+  function renderSummary(data){
+    const total=data.length;
+    const sales=data.reduce((s,b)=>s+(parseFloat(b.amountCharged)||0),0);
+    const collected=data.reduce((s,b)=>s+(parseFloat(b.amountPaid)||0),0);
+    const balance=sales-collected;
+    const completed=data.filter(b=>b.status==='Completed'||b.status==='Paid').length;
+    const pending=data.filter(b=>b.status==='Pending'||b.status==='Assigned').length;
+    document.getElementById('sumTotal').textContent=total;
+    document.getElementById('sumSales').textContent=fKES(sales);
+    document.getElementById('sumCollected').textContent=fKES(collected);
+    document.getElementById('sumBalance').textContent=fKES(balance);
+    document.getElementById('sumCompleted').textContent=completed;
+    document.getElementById('sumPending').textContent=pending;
+  }
+
+  function renderTechReport(data){
+    const tbody=document.getElementById('techReportBody');
+    const map={};
+    data.forEach(b=>{ const name=b.technicianAssigned||'Unassigned'; if(!map[name]) map[name]={jobs:[],branch:''}; map[name].jobs.push(b); });
+    allTechs.forEach(t=>{ if(map[t.name]) map[t.name].branch=t.branch||''; });
+    const rows=Object.entries(map).map(([name,obj])=>{
+      const jobs=obj.jobs;
+      const completed=jobs.filter(b=>b.status==='Completed'||b.status==='Paid').length;
+      const sales=jobs.reduce((s,b)=>s+(parseFloat(b.amountCharged)||0),0);
+      const collected=jobs.reduce((s,b)=>s+(parseFloat(b.amountPaid)||0),0);
+      const balance=sales-collected;
+      const rate=jobs.length>0?Math.round((completed/jobs.length)*100):0;
+      return{name,branch:obj.branch,jobs:jobs.length,completed,sales,collected,balance,rate};
+    }).sort((a,b)=>b.sales-a.sales);
+    document.getElementById('techReportCount').textContent=rows.length+' technician'+(rows.length!==1?'s':'');
+    if(rows.length===0){ tbody.innerHTML='<tr class="empty-row"><td colspan="9">No data for the selected filters.</td></tr>'; return; }
+    tbody.innerHTML=rows.map((r,i)=>`<tr>
+      <td class="td-rank">${i+1}</td>
+      <td class="td-name">${esc(r.name)}</td>
+      <td>${esc(r.branch||'--')}</td>
+      <td>${r.jobs}</td>
+      <td>${r.completed}</td>
+      <td class="td-amount">${fKES(r.sales)}</td>
+      <td class="td-amount">${fKES(r.collected)}</td>
+      <td class="td-amount ${r.balance>0?'td-balance':'td-balance clear'}">${fKES(r.balance)}</td>
+      <td><div class="progress-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${r.rate}%"></div></div><span class="progress-pct">${r.rate}%</span></div></td>
+    </tr>`).join('');
+  }
+
+  function renderBranchReport(data){
+    const tbody=document.getElementById('branchReportBody');
+    const branches=['Nairobi','Nakuru','Eldoret','Mombasa'];
+    const rows=branches.map(branch=>{
+      const jobs=data.filter(b=>b.branch===branch);
+      const completed=jobs.filter(b=>b.status==='Completed'||b.status==='Paid').length;
+      const sales=jobs.reduce((s,b)=>s+(parseFloat(b.amountCharged)||0),0);
+      const collected=jobs.reduce((s,b)=>s+(parseFloat(b.amountPaid)||0),0);
+      const balance=sales-collected;
+      const rate=jobs.length>0?Math.round((completed/jobs.length)*100):0;
+      return{branch,total:jobs.length,completed,sales,collected,balance,rate};
+    });
+    if(rows.every(r=>r.total===0)){ tbody.innerHTML='<tr class="empty-row"><td colspan="7">No data for the selected filters.</td></tr>'; return; }
+    tbody.innerHTML=rows.map(r=>`<tr>
+      <td class="td-name">${esc(r.branch)}</td>
+      <td>${r.total}</td>
+      <td>${r.completed}</td>
+      <td class="td-amount">${fKES(r.sales)}</td>
+      <td class="td-amount">${fKES(r.collected)}</td>
+      <td class="td-amount ${r.balance>0?'td-balance':'td-balance clear'}">${fKES(r.balance)}</td>
+      <td><div class="progress-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${r.rate}%"></div></div><span class="progress-pct">${r.rate}%</span></div></td>
+    </tr>`).join('');
+  }
+
+  function renderCustomerRegion(data){
+    const tbody=document.getElementById('customerRegionBody');
+    const branches=['Nairobi','Nakuru','Eldoret','Mombasa'];
+    const rows=branches.map(branch=>{
+      const jobs=data.filter(b=>b.branch===branch);
+      const sales=jobs.reduce((s,b)=>s+(parseFloat(b.amountCharged)||0),0);
+      const customers=[...new Set(jobs.map(b=>b.clientPhone||b.clientName||'unknown'))];
+      const serviceCount={};
+      jobs.forEach(b=>{ const s=b.serviceRequired||'Unknown'; serviceCount[s]=(serviceCount[s]||0)+1; });
+      const topService=Object.entries(serviceCount).sort((a,b)=>b[1]-a[1])[0];
+      return{branch,customers:customers.length,jobs:jobs.length,sales,topService:topService?topService[0]:'--'};
+    });
+    document.getElementById('customerRegionCount').textContent=rows.reduce((s,r)=>s+r.customers,0)+' unique customers';
+    if(rows.every(r=>r.jobs===0)){ tbody.innerHTML='<tr class="empty-row"><td colspan="5">No data for the selected filters.</td></tr>'; return; }
+    tbody.innerHTML=rows.map(r=>`<tr>
+      <td class="td-name">${esc(r.branch)}</td>
+      <td>${r.customers}</td>
+      <td>${r.jobs}</td>
+      <td class="td-amount">${fKES(r.sales)}</td>
+      <td>${esc(r.topService)}</td>
+    </tr>`).join('');
+  }
+
+  function renderDailyReport(data){
+    const tbody=document.getElementById('dailyBody');
+    const sorted=[...data].sort((a,b)=>(b.serviceDate||'').localeCompare(a.serviceDate||''));
+    document.getElementById('dailyCount').textContent=sorted.length+' booking'+(sorted.length!==1?'s':'');
+    if(sorted.length===0){ tbody.innerHTML='<tr class="empty-row"><td colspan="8">No bookings for the selected filters.</td></tr>'; return; }
+    tbody.innerHTML=sorted.map(b=>`<tr>
+      <td style="white-space:nowrap;color:var(--text-dim)">${fDate(b.serviceDate)}</td>
+      <td class="td-name">${esc(b.clientName||'--')}</td>
+      <td>${esc(b.serviceRequired||'--')}</td>
+      <td>${esc(b.branch||'--')}</td>
+      <td>${esc(b.technicianAssigned||'Unassigned')}</td>
+      <td class="td-amount">${fKES(b.amountCharged)}</td>
+      <td class="td-amount">${fKES(b.amountPaid)}</td>
+      <td><span class="status-badge ${(b.status||'pending').toLowerCase()}">${esc(b.status||'Pending')}</span></td>
+    </tr>`).join('');
+  }
+
+  function renderPendingBalances(data){
+    const tbody=document.getElementById('pendingBalBody');
+    const unpaid=data.filter(b=>(parseFloat(b.balance)||0)>0);
+    unpaid.sort((a,b)=>(parseFloat(b.balance)||0)-(parseFloat(a.balance)||0));
+    document.getElementById('pendingBalCount').textContent=unpaid.length+' unpaid';
+    if(unpaid.length===0){ tbody.innerHTML='<tr class="empty-row"><td colspan="9">No outstanding balances. All jobs are fully paid.</td></tr>'; return; }
+    tbody.innerHTML=unpaid.map(b=>`<tr>
+      <td class="td-name">${esc(b.clientName||'--')}</td>
+      <td>${esc(b.clientPhone||'--')}</td>
+      <td>${esc(b.branch||'--')}</td>
+      <td>${esc(b.technicianAssigned||'Unassigned')}</td>
+      <td style="white-space:nowrap;color:var(--text-dim)">${fDate(b.serviceDate)}</td>
+      <td class="td-amount">${fKES(b.amountCharged)}</td>
+      <td class="td-amount">${fKES(b.amountPaid)}</td>
+      <td class="td-amount td-balance">${fKES(b.balance)}</td>
+      <td><span class="status-badge ${(b.status||'pending').toLowerCase()}">${esc(b.status||'Pending')}</span></td>
+    </tr>`).join('');
+  }
+
+  function fKES(val){ const n=parseFloat(val)||0; return n.toLocaleString('en-KE',{minimumFractionDigits:0,maximumFractionDigits:0}); }
+  function fDate(val){ if(!val) return '--'; const d=new Date(val); return isNaN(d)?val:d.toLocaleDateString('en-KE',{day:'2-digit',month:'short',year:'numeric'}); }
+  function esc(str){ return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+</body>
+</html>

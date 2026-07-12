@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ecolife System | Technicians</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#060D06;
+  --bg-card:#0C160C;
+  --bg-input:#0F1A0F;
+  --sidebar-bg:#080F08;
+  --topbar-bg:#0A120A;
+  --green:#00E676;
+  --green-dim:#00C853;
+  --green-glow:rgba(0,230,118,0.08);
+  --green-border:rgba(0,230,118,0.18);
+  --green-border-strong:rgba(0,230,118,0.35);
+  --white:#E8F5E9;
+  --gray:#6B8F71;
+  --gray-dim:#3D5E42;
+  --text:#C8E6C9;
+  --text-dim:#8BAD8F;
+  --error:#FF5252;
+  --sidebar-w:240px;
+}
+
+html,body{height:100%;font-family:'Inter',sans-serif;color:var(--text);background:var(--bg)}
+
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 10% 10%,rgba(0,230,118,0.05) 0%,transparent 50%),radial-gradient(ellipse at 90% 90%,rgba(0,200,83,0.06) 0%,transparent 50%);pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,230,118,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,230,118,0.02) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);background:var(--sidebar-bg);border-right:1px solid var(--green-border);display:flex;flex-direction:column;z-index:100;transition:transform 0.3s}
+.sidebar-brand{padding:22px 20px 18px;border-bottom:1px solid var(--green-border);display:flex;align-items:center;gap:12px}
+.sidebar-brand img{width:38px;height:38px;border-radius:50%;object-fit:cover;border:1.5px solid var(--green-border-strong);flex-shrink:0;box-shadow:0 0 12px rgba(0,230,118,0.15)}
+.brand-text{font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;color:var(--green);letter-spacing:0.06em;line-height:1.2}
+.brand-text span{display:block;font-weight:500;font-size:10px;color:var(--gray);letter-spacing:0.1em;text-transform:uppercase}
+.sidebar-nav{flex:1;padding:14px 0;overflow-y:auto}
+.nav-section-label{font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gray-dim);padding:10px 20px 6px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 20px;cursor:pointer;color:var(--text-dim);font-size:15px;font-weight:500;transition:all 0.2s;border-left:2px solid transparent;text-decoration:none}
+.nav-item:hover{background:var(--green-glow);color:var(--white)}
+.nav-item.active{background:rgba(0,230,118,0.08);color:var(--green);border-left-color:var(--green)}
+.nav-icon{width:17px;height:17px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sidebar-footer{padding:14px 20px;border-top:1px solid var(--green-border)}
+.user-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:rgba(0,230,118,0.1);border:1px solid var(--green-border-strong);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:700;font-size:14px;color:var(--green);flex-shrink:0}
+.user-info{flex:1;min-width:0}
+.user-name{font-size:14px;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-role{font-size:10px;color:var(--gray);letter-spacing:0.08em;text-transform:uppercase}
+.btn-signout{width:100%;padding:8px;background:rgba(255,82,82,0.06);border:1px solid rgba(255,82,82,0.15);border-radius:7px;color:rgba(255,130,130,0.7);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-signout:hover{background:rgba(255,82,82,0.12);border-color:rgba(255,82,82,0.3);color:#FF8A80}
+
+.topbar{position:fixed;top:0;left:var(--sidebar-w);right:0;height:60px;background:var(--topbar-bg);border-bottom:1px solid var(--green-border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;z-index:90}
+.topbar-left{display:flex;align-items:center;gap:14px}
+.menu-toggle{display:none;background:none;border:none;cursor:pointer;padding:6px;border-radius:6px;color:var(--gray)}
+.menu-toggle svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.page-title{font-family:'Montserrat',sans-serif;font-weight:800;font-size:16px;color:var(--white);letter-spacing:0.04em}
+.btn-add{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;background:linear-gradient(135deg,#00C853 0%,#00A846 100%);color:#050D05;font-family:'Montserrat',sans-serif;font-weight:800;font-size:12px;border-radius:7px;border:none;cursor:pointer;transition:all 0.2s;letter-spacing:0.04em;text-transform:uppercase}
+.btn-add:hover{background:linear-gradient(135deg,#00E676 0%,#00C853 100%);box-shadow:0 4px 14px rgba(0,200,83,0.3)}
+.btn-add svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round}
+
+.main{margin-left:var(--sidebar-w);padding-top:60px;min-height:100vh;position:relative;z-index:1}
+.main-inner{padding:24px;max-width:960px}
+
+.summary-strip{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap}
+.strip-item{background:var(--bg-card);border:1px solid var(--green-border);border-radius:8px;padding:12px 16px;display:flex;flex-direction:column;gap:2px;min-width:110px}
+.strip-label{font-size:10px;color:var(--text-dim);font-weight:700;text-transform:uppercase;letter-spacing:0.08em}
+.strip-value{font-family:'Montserrat',sans-serif;font-weight:800;font-size:22px;color:var(--white)}
+
+.techs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+
+.tech-card{background:var(--bg-card);border:1px solid var(--green-border);border-radius:12px;padding:20px;transition:all 0.2s}
+.tech-card:hover{box-shadow:0 0 24px rgba(0,230,118,0.08);transform:translateY(-1px);border-color:var(--green-border-strong)}
+.tech-card-top{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.tech-avatar{width:46px;height:46px;border-radius:50%;background:rgba(0,230,118,0.08);border:1.5px solid var(--green-border-strong);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-weight:800;font-size:17px;color:var(--green);flex-shrink:0}
+.tech-info{flex:1;min-width:0}
+.tech-name{font-family:'Montserrat',sans-serif;font-weight:700;font-size:15px;color:var(--white);margin-bottom:2px}
+.tech-email{font-size:12px;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tech-branch-badge{display:inline-block;padding:3px 10px;border-radius:100px;font-size:10px;font-weight:700;background:rgba(0,230,118,0.1);color:var(--green);border:1px solid rgba(0,230,118,0.2);letter-spacing:0.06em;text-transform:uppercase}
+.tech-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding-top:14px;border-top:1px solid var(--green-border);margin-top:12px}
+.tech-stat-label{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:2px;font-weight:600}
+.tech-stat-val{font-family:'Montserrat',sans-serif;font-weight:700;font-size:16px;color:var(--white)}
+.tech-card-footer{display:flex;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--green-border)}
+.btn-remove{flex:1;padding:8px;background:rgba(255,82,82,0.06);border:1px solid rgba(255,82,82,0.15);border-radius:7px;color:#FF8A80;font-family:'Montserrat',sans-serif;font-weight:600;font-size:12px;cursor:pointer;transition:all 0.2s;text-transform:uppercase;letter-spacing:0.04em}
+.btn-remove:hover{background:rgba(255,82,82,0.12);border-color:rgba(255,82,82,0.3)}
+
+.empty-state{background:var(--bg-card);border:1px solid var(--green-border);border-radius:12px;padding:60px 24px;text-align:center}
+.empty-state p{font-size:14px;color:var(--gray);margin-bottom:20px}
+
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:300;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal{background:var(--bg-card);border-radius:14px;width:100%;max-width:460px;box-shadow:0 24px 64px rgba(0,0,0,0.6);border:1px solid var(--green-border)}
+.modal-header{padding:18px 22px;border-bottom:1px solid var(--green-border);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-family:'Montserrat',sans-serif;font-weight:700;font-size:15px;color:var(--white)}
+.modal-close{background:none;border:none;cursor:pointer;color:var(--gray);padding:4px;border-radius:6px;transition:color 0.2s}
+.modal-close:hover{color:var(--white)}
+.modal-close svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.modal-body{padding:22px;display:flex;flex-direction:column;gap:16px}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-label{font-size:10px;font-weight:700;color:var(--green-dim);letter-spacing:0.1em;text-transform:uppercase}
+.form-label .req{color:var(--error)}
+input[type=text],input[type=email],select{width:100%;padding:11px 14px;border:1.5px solid var(--green-border);border-radius:8px;font-family:'Inter',sans-serif;font-size:15px;color:var(--text);background:var(--bg-input);outline:none;transition:border-color 0.2s,box-shadow 0.2s;-webkit-appearance:none;appearance:none}
+input::placeholder{color:rgba(107,143,113,0.4)}
+input:focus,select:focus{border-color:var(--green-dim);box-shadow:0 0 0 3px rgba(0,200,83,0.1)}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B8F71' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px}
+.field-hint{font-size:11px;color:var(--gray);line-height:1.5}
+.modal-footer{padding:14px 22px;border-top:1px solid var(--green-border);display:flex;gap:10px;justify-content:flex-end}
+.btn-save{padding:11px 24px;background:linear-gradient(135deg,#00C853,#00A846);color:#050D05;font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;border:none;border-radius:7px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:0.04em}
+.btn-save:hover:not(:disabled){background:linear-gradient(135deg,#00E676,#00C853);box-shadow:0 4px 16px rgba(0,200,83,0.3)}
+.btn-save:disabled{opacity:0.5;cursor:not-allowed}
+.btn-cancel-modal{padding:11px 20px;background:transparent;color:var(--text-dim);font-family:'Montserrat',sans-serif;font-weight:600;font-size:14px;border:1px solid var(--green-border);border-radius:7px;cursor:pointer;transition:all 0.2s}
+.btn-cancel-modal:hover{border-color:var(--green-border-strong);color:var(--white)}
+.spinner{display:none;width:14px;height:14px;border:2px solid rgba(5,13,5,0.3);border-top-color:#050D05;border-radius:50%;animation:spin 0.7s linear infinite}
+.btn-save.loading .spinner{display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.toast{display:none;position:fixed;top:76px;right:20px;z-index:999;padding:14px 20px;border-radius:10px;font-size:15px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.4);max-width:320px}
+.toast.success{background:rgba(0,230,118,0.1);color:var(--green);border:1px solid rgba(0,230,118,0.25);display:block}
+.toast.error{background:rgba(255,82,82,0.1);color:#FF8A80;border:1px solid rgba(255,82,82,0.25);display:block}
+
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay.show{display:block}
+  .topbar{left:0}
+  .main{margin-left:0}
+  .menu-toggle{display:flex}
+  .main-inner{padding:16px}
+  .techs-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="overlay"></div>
+<div class="toast" id="toast"></div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Add Technician</span>
+      <button class="modal-close" id="modalClose"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Full Name <span class="req">*</span></label>
+        <input type="text" id="techName" placeholder="e.g. John Kamau">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Personal Email <span class="req">*</span></label>
+        <input type="email" id="techEmail" placeholder="technician@gmail.com">
+        <span class="field-hint">Firebase will send them a link to set their password.</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Branch <span class="req">*</span></label>
+        <select id="techBranch">
+          <option value="">Select branch</option>
+          <option>Nairobi</option>
+          <option>Nakuru</option>
+          <option>Eldoret</option>
+          <option>Mombasa</option>
+<option>Kisumu</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <input type="text" id="techPhone" placeholder="07XX XXX XXX">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel-modal" id="cancelModal">Cancel</button>
+      <button class="btn-save" id="saveBtn">
+        <div class="spinner"></div>
+        <span class="btn-text">Add Technician</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <img src="https://res.cloudinary.com/hztm3zo8/image/upload/v1782422764/FB_IMG_1781877214514_qq7dt6.jpg" alt="Ecolife">
+    <div class="brand-text">ECOLIFE <span>Operations System</span></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+    <a class="nav-item" href="dashboard.html">
+      <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-item" href="bookings.html">
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Bookings
+    </a>
+    <a class="nav-item" href="new-booking.html">
+      <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      New Booking
+    </a>
+    <div class="nav-section-label">Management</div>
+    <a class="nav-item active" href="technicians.html">
+      <svg class="nav-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Technicians
+    </a>
+    <a class="nav-item" href="reports.html">
+      <svg class="nav-icon" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Reports
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="user-avatar" id="userAvatar">E</div>
+      <div class="user-info">
+        <div class="user-name" id="userName">Loading...</div>
+        <div class="user-role">Admin</div>
+      </div>
+    </div>
+    <button class="btn-signout" id="signOutBtn">
+      <svg style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sign Out
+    </button>
+  </div>
+</aside>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <button class="menu-toggle" id="menuToggle">
+      <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <span class="page-title">Technicians</span>
+  </div>
+  <button class="btn-add" id="openModalBtn">
+    <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Add Technician
+  </button>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="main-inner">
+
+    <div class="summary-strip">
+      <div class="strip-item"><span class="strip-label">Total</span><span class="strip-value" id="totalTechs">0</span></div>
+      <div class="strip-item"><span class="strip-label">Nairobi</span><span class="strip-value" id="countNairobi">0</span></div>
+      <div class="strip-item"><span class="strip-label">Nakuru</span><span class="strip-value" id="countNakuru">0</span></div>
+      <div class="strip-item"><span class="strip-label">Eldoret</span><span class="strip-value" id="countEldoret">0</span></div>
+      <div class="strip-item"><span class="strip-label">Mombasa</span><span class="strip-value" id="countMombasa">0</span></div>
+    </div>
+
+    <div class="techs-grid" id="techsGrid">
+      <div class="empty-state"><p>Loading technicians...</p></div>
+    </div>
+
+  </div>
+</main>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+  import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBxi76PxDat-G5bjcUQ2MmPe0mGcTE-izs",
+    authDomain: "ecolife-system-ff2d6.firebaseapp.com",
+    databaseURL: "https://ecolife-system-ff2d6-default-rtdb.firebaseio.com",
+    projectId: "ecolife-system-ff2d6",
+    storageBucket: "ecolife-system-ff2d6.firebasestorage.app",
+    messagingSenderId: "421807560122",
+    appId: "1:421807560122:web:877a49223b03ba4a477983"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  let allTechs    = [];
+  let allBookings = [];
+
+  document.getElementById('menuToggle').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('show');
+  });
+  document.getElementById('overlay').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('show');
+  });
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { window.location.href = 'index.html'; return; }
+    document.getElementById('userAvatar').textContent = user.email.charAt(0).toUpperCase();
+    document.getElementById('userName').textContent   = user.email.split('@')[0];
+    await Promise.all([loadTechs(), loadBookings()]);
+    renderTechs();
+  });
+
+  document.getElementById('signOutBtn').addEventListener('click', async () => {
+    await signOut(auth);
+    window.location.href = 'index.html';
+  });
+
+  async function loadTechs(){
+    const snap = await getDocs(collection(db,'technicians'));
+    allTechs   = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    allTechs.sort((a,b) => (a.name||'').localeCompare(b.name||''));
+  }
+
+  async function loadBookings(){
+    const snap  = await getDocs(collection(db,'bookings'));
+    allBookings = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  }
+
+  function renderTechs(){
+    const grid = document.getElementById('techsGrid');
+    document.getElementById('totalTechs').textContent   = allTechs.length;
+    document.getElementById('countNairobi').textContent = allTechs.filter(t=>t.branch==='Nairobi').length;
+    document.getElementById('countNakuru').textContent  = allTechs.filter(t=>t.branch==='Nakuru').length;
+    document.getElementById('countEldoret').textContent = allTechs.filter(t=>t.branch==='Eldoret').length;
+    document.getElementById('countMombasa').textContent = allTechs.filter(t=>t.branch==='Mombasa').length;
+
+    if(allTechs.length===0){
+      grid.innerHTML = '<div class="empty-state"><p>No technicians added yet.</p><button class="btn-add" onclick="document.getElementById(\'openModalBtn\').click()" style="margin:0 auto">Add First Technician</button></div>';
+      return;
+    }
+
+    grid.innerHTML = allTechs.map(t => {
+      const jobs      = allBookings.filter(b => b.technicianAssigned===t.name);
+      const completed = jobs.filter(b => b.status==='Completed'||b.status==='Paid').length;
+      const sales     = jobs.reduce((s,b) => s+(parseFloat(b.amountCharged)||0),0);
+      const initials  = (t.name||'T').split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+      return `<div class="tech-card">
+        <div class="tech-card-top">
+          <div class="tech-avatar">${initials}</div>
+          <div class="tech-info">
+            <div class="tech-name">${esc(t.name||'--')}</div>
+            <div class="tech-email">${esc(t.email||'--')}</div>
+          </div>
+        </div>
+        <span class="tech-branch-badge">${esc(t.branch||'--')}</span>
+        <div class="tech-stats">
+          <div><div class="tech-stat-label">Jobs</div><div class="tech-stat-val">${jobs.length}</div></div>
+          <div><div class="tech-stat-label">Done</div><div class="tech-stat-val">${completed}</div></div>
+          <div><div class="tech-stat-label">KES</div><div class="tech-stat-val">${fKES(sales)}</div></div>
+        </div>
+        <div class="tech-card-footer">
+          <button class="btn-remove" onclick="removeTech('${t.id}','${esc(t.name||'')}')" >Remove</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('openModalBtn').addEventListener('click', () => {
+    clearForm();
+    document.getElementById('modalBg').classList.add('open');
+  });
+
+  ['modalClose','cancelModal'].forEach(id => {
+    document.getElementById(id).addEventListener('click', () => {
+      document.getElementById('modalBg').classList.remove('open');
+    });
+  });
+
+  document.getElementById('modalBg').addEventListener('click', e => {
+    if(e.target===document.getElementById('modalBg')) document.getElementById('modalBg').classList.remove('open');
+  });
+
+  function clearForm(){
+    ['techName','techEmail','techPhone'].forEach(id => document.getElementById(id).value='');
+    document.getElementById('techBranch').value='';
+  }
+
+  document.getElementById('saveBtn').addEventListener('click', async () => {
+    const name   = document.getElementById('techName').value.trim();
+    const email  = document.getElementById('techEmail').value.trim();
+    const branch = document.getElementById('techBranch').value;
+    const phone  = document.getElementById('techPhone').value.trim();
+
+    if(!name)   { showToast('Full name is required.','error'); return; }
+    if(!email)  { showToast('Email address is required.','error'); return; }
+    if(!branch) { showToast('Please select a branch.','error'); return; }
+
+    const btn = document.getElementById('saveBtn');
+    btn.disabled=true;btn.classList.add('loading');
+    document.querySelector('.btn-text').textContent='Adding...';
+
+    try{
+      await createUserWithEmailAndPassword(auth,email,'TempPass2024!');
+      await sendPasswordResetEmail(auth,email);
+      await addDoc(collection(db,'technicians'),{name,email,branch,phone,createdAt:serverTimestamp()});
+      await Promise.all([loadTechs(),loadBookings()]);
+      renderTechs();
+      showToast(name+' added. A password setup email has been sent to '+email+'.','success');
+      document.getElementById('modalBg').classList.remove('open');
+    } catch(err){
+      let msg='Failed to add technician. Please try again.';
+      if(err.code==='auth/email-already-in-use') msg='This email is already registered in the system.';
+      if(err.code==='auth/invalid-email')        msg='Please enter a valid email address.';
+      showToast(msg,'error');
+    } finally{
+      btn.disabled=false;btn.classList.remove('loading');
+      document.querySelector('.btn-text').textContent='Add Technician';
+    }
+  });
+
+  window.removeTech = async function(id,name){
+    if(!confirm('Remove '+name+' from the system? Their booking history will remain.')) return;
+    try{
+      await deleteDoc(doc(db,'technicians',id));
+      await loadTechs();
+      renderTechs();
+      showToast(name+' has been removed.','success');
+    } catch(e){ showToast('Failed to remove technician.','error'); }
+  };
+
+  function showToast(msg,type){
+    const t=document.getElementById('toast');
+    t.textContent=msg;t.className='toast '+type;
+    setTimeout(()=>{t.className='toast';},5000);
+  }
+
+  function fKES(val){ const n=parseFloat(val)||0; return n.toLocaleString('en-KE',{minimumFractionDigits:0,maximumFractionDigits:0}); }
+  function esc(str){ return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+</body>
+</html>
