@@ -268,7 +268,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
   import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -398,8 +398,6 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     document.querySelector('.btn-text').textContent='Adding...';
 
     try{
-      await createUserWithEmailAndPassword(auth,email,'TempPass2024!');
-      sendPasswordResetEmail(auth,email).catch(err => console.log("Password email failed:", err));
 await addDoc(collection(db,'technicians'),{name,email,branch,phone,createdAt:serverTimestamp()});
 
 await loadTechs();
