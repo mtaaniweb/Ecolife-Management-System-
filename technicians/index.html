@@ -399,11 +399,13 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 
     try{
       await createUserWithEmailAndPassword(auth,email,'TempPass2024!');
-      await sendPasswordResetEmail(auth,email);
-      await addDoc(collection(db,'technicians'),{name,email,branch,phone,createdAt:serverTimestamp()});
-      await Promise.all([loadTechs(),loadBookings()]);
-      renderTechs();
-      showToast(name+' added. A password setup email has been sent to '+email+'.','success');
+      sendPasswordResetEmail(auth,email).catch(err => console.log("Password email failed:", err));
+await addDoc(collection(db,'technicians'),{name,email,branch,phone,createdAt:serverTimestamp()});
+
+await loadTechs();
+renderTechs();
+
+showToast(name+' added successfully.','success');
       document.getElementById('modalBg').classList.remove('open');
     } catch(err){
       let msg='Failed to add technician. Please try again.';
