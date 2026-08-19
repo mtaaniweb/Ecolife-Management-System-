@@ -238,6 +238,8 @@ tbody td{padding:12px 16px;font-size:15px;color:var(--text);vertical-align:middl
             <option value="all">All Branches</option>
             <option>Nairobi</option><option>Nakuru</option><option>Eldoret</option><option>Mombasa</option>
 <option>Kisumu</option>
+<option>Kitale</option>
+
           </select>
         </div>
         <div class="filter-group">
@@ -482,7 +484,7 @@ tbody td{padding:12px 16px;font-size:15px;color:var(--text);vertical-align:middl
 
   function renderBranchReport(data){
     const tbody=document.getElementById('branchReportBody');
-    const branches=['Nairobi','Nakuru','Eldoret','Mombasa'];
+    const branches=['Nairobi','Nakuru','Eldoret','Mombasa','Kisumu','Kitale'];
     const rows=branches.map(branch=>{
       const jobs=data.filter(b=>b.branch===branch);
       const completed=jobs.filter(b=>b.status==='Completed'||b.status==='Paid').length;
@@ -506,7 +508,7 @@ tbody td{padding:12px 16px;font-size:15px;color:var(--text);vertical-align:middl
 
   function renderCustomerRegion(data){
     const tbody=document.getElementById('customerRegionBody');
-    const branches=['Nairobi','Nakuru','Eldoret','Mombasa'];
+    const branches=['Nairobi','Nakuru','Eldoret','Mombasa','Kisumu','Kitale'];
     const rows=branches.map(branch=>{
       const jobs=data.filter(b=>b.branch===branch);
       const sales=jobs.reduce((s,b)=>s+(parseFloat(b.amountCharged)||0),0);
