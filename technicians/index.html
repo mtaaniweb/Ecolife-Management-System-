@@ -166,6 +166,8 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
           <option>Eldoret</option>
           <option>Mombasa</option>
           <option>Kisumu</option>
+          <option>Kitale</option>
+
         </select>
       </div>
       <div class="form-group">
@@ -253,6 +255,8 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
       <div class="strip-item"><span class="strip-label">Eldoret</span><span class="strip-value" id="countEldoret">0</span></div>
       <div class="strip-item"><span class="strip-label">Mombasa</span><span class="strip-value" id="countMombasa">0</span></div>
       <div class="strip-item"><span class="strip-label">Kisumu</span><span class="strip-value" id="countKisumu">0</span></div>
+      <div class="strip-item"><span class="strip-label">Kitale</span><span class="strip-value" id="countKitale">0</span></div>
+
     </div>
 
     <div class="techs-grid" id="techsGrid">
@@ -325,6 +329,8 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     document.getElementById('countEldoret').textContent = allTechs.filter(t=>t.branch==='Eldoret').length;
     document.getElementById('countMombasa').textContent = allTechs.filter(t=>t.branch==='Mombasa').length;
     document.getElementById('countKisumu').textContent = allTechs.filter(t=>t.branch==='Kisumu').length;
+    document.getElementById('countKitale').textContent = allTechs.filter(t=>t.branch==='Kitale').length;
+
 
     if(allTechs.length===0){
       grid.innerHTML = '<div class="empty-state"><p>No technicians added yet.</p><button class="btn-add" onclick="document.getElementById(\'openModalBtn\').click()" style="margin:0 auto">Add First Technician</button></div>';
